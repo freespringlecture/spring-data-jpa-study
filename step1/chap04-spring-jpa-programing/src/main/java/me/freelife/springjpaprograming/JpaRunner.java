@@ -18,36 +18,13 @@ public class JpaRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Entity 상태 테스트
-        /*
-        Account account = new Account();
-        account.setUsername("freelife");
-        account.setPassword("hibernate");
-
-        Study study = new Study();
-        study.setName("Spring Data JPA");
-
-        account.addStudy(study);
-
-        Session session = entityManager.unwrap(Session.class);
-        session.save(account);
-        session.save(study);
-
-        Account freelife = session.load(Account.class, account.getId());
-        freelife.setUsername("ironman");
-        freelife.setUsername("superman");
-        freelife.setUsername("freelife");
-        System.out.println("=====================");
-        System.out.println(freelife.getUsername());
-        */
-
         // Post(Parent) Comment(Child) Cascade 테스트 예제
         /*
         Post post = new Post();
         post.setTitle("Spring Data JPA 언제 보나...");
 
         Comment comment = new Comment();
-        comment.setComment("빨리 보고 싶엉.");
+        comment.setComment("빨리 보고 싶어요.");
         post.addComment(comment);
 
         Comment comment1 = new Comment();
@@ -57,10 +34,24 @@ public class JpaRunner implements ApplicationRunner {
         Session session = entityManager.unwrap(Session.class);
         session.save(post);
         */
-
-        // REMOVE 테스트
+        // EAGER 테스트
         Session session = entityManager.unwrap(Session.class);
-        Post post = session.get(Post.class, 1l);
-        session.delete(post);
+        Post post = session.get(Post.class, 4l);
+        System.out.println("========================");
+        System.out.println(post.getTitle());
+
+        // Lazy n+1 테스트
+        post.getComments().forEach(c -> {
+            System.out.println("--------------");
+            System.out.println(c.getComment());
+        });
+
+        // Lazy 테스트
+//        Comment comment = session.get(Comment.class, 5l);
+//        System.out.println("=====================");
+//        System.out.println(comment.getComment());
+//        System.out.println(comment.getPost().getTitle());
+
+
     }
 }
