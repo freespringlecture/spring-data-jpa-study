@@ -8,6 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 @Component
 @Transactional
@@ -18,40 +23,27 @@ public class JpaRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Post(Parent) Comment(Child) Cascade 테스트 예제
+        // JPQL Example
         /*
-        Post post = new Post();
-        post.setTitle("Spring Data JPA 언제 보나...");
-
-        Comment comment = new Comment();
-        comment.setComment("빨리 보고 싶어요.");
-        post.addComment(comment);
-
-        Comment comment1 = new Comment();
-        comment1.setComment("곧 보여드릴께요.");
-        post.addComment(comment1);
-
-        Session session = entityManager.unwrap(Session.class);
-        session.save(post);
+        TypedQuery<Post> query = entityManager.createQuery("SELECT p FROM Post As p", Post.class);
+        List<Post> posts = query.getResultList();
         */
-        // EAGER 테스트
-        Session session = entityManager.unwrap(Session.class);
-        Post post = session.get(Post.class, 4l);
-        System.out.println("========================");
-        System.out.println(post.getTitle());
 
-        // Lazy n+1 테스트
-        post.getComments().forEach(c -> {
-            System.out.println("--------------");
-            System.out.println(c.getComment());
-        });
+        // Criteria
+        /*
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
+        Root<Post> root = criteria.from(Post.class);
+        criteria.select(root);
 
-        // Lazy 테스트
-//        Comment comment = session.get(Comment.class, 5l);
-//        System.out.println("=====================");
-//        System.out.println(comment.getComment());
-//        System.out.println(comment.getPost().getTitle());
+        List<Post> posts = entityManager.createQuery(criteria).getResultList();
+        */
 
+        // Native Query
+        List<Post> posts = entityManager
+                .createNativeQuery("SELECT * FROM post", Post.class)
+                .getResultList();
 
+        posts.forEach(System.out::println);
     }
 }
