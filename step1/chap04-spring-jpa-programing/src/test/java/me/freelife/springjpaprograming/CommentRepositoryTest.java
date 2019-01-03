@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,14 +20,14 @@ public class CommentRepositoryTest {
 
     @Test
     public void crud() {
-        Comment comment = new Comment();
-        comment.setComment("Hello Comment");
-        commentRepository.save(comment);
+        Optional<Comment> byId = commentRepository.findById(100l);
+        assertThat(byId).isEmpty();
+        //Comment comment = byId.orElse(new Comment()); // Optional 객체가 비어있으면 Comment 만들어서 리턴
+        Comment comment = byId.orElseThrow(() -> new IllegalArgumentException());
 
-        List<Comment> all = commentRepository.findAll();
-        assertThat(all.size()).isEqualTo(1);
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).isEmpty();
 
-        long count = commentRepository.count();
-        assertThat(count).isEqualTo(1);
+        commentRepository.save(null);
     }
 }
