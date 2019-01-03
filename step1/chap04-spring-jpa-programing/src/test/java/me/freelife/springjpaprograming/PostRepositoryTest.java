@@ -34,7 +34,7 @@ public class PostRepositoryTest {
         // Then - 이렇게 되길 바란다
         assertThat(newPost.getId()).isNotNull();
 
-        // when
+        // when - JPA에서 제공해주는 기능임 Crud 에서 제공하는건 Iterable<T> findAll
         List<Post> posts = postRepository.findAll();
 
         // Then
