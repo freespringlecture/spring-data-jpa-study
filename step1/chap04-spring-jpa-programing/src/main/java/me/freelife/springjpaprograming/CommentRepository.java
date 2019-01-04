@@ -1,10 +1,13 @@
 package me.freelife.springjpaprograming;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.util.concurrent.ListenableFuture;
 
-import java.util.stream.Stream;
+import java.util.List;
 
-public interface CommentRepository extends MyRepository<Comment, Long>{
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     //Comment 조회
     //List<Comment> findByCommentContains(String keyword);
@@ -17,5 +20,7 @@ public interface CommentRepository extends MyRepository<Comment, Long>{
     //Pageable로 동적으로 정렬
     //Page<Comment> findByCommentContainsIgnoreCase(String keyword, Pageable pageable);
     //Stream으로 받아오기
-    Stream<Comment> findByCommentContainsIgnoreCase(String keyword, Pageable pageable);
+    //Stream<Comment> findByCommentContainsIgnoreCase(String keyword, Pageable pageable);
+    @Async
+    ListenableFuture<List<Comment>> findByCommentContainsIgnoreCase(String keyword, Pageable pageable);
 }
