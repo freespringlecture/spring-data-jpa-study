@@ -1,4 +1,4 @@
-package me.freelife.springjpaprograming;
+package me.freelife.springjpaprograming.post;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class PostCustomRepositoryDefault implements PostCustomRepository<Post>{
+public class PostCustomRepositoryImpl implements PostCustomRepository<Post>{
 
     @Autowired
     EntityManager entityManager;

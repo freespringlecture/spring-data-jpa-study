@@ -1,4 +1,4 @@
-package me.freelife.springjpaprograming;
+package me.freelife.springjpaprograming.post;
 
 import javax.persistence.*;
 import java.util.Date;
