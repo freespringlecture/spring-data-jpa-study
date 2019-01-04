@@ -1,22 +1,21 @@
 package me.freelife.springjpaprograming;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Date;
 
 @Entity
 public class Post {
 
     @Id @GeneratedValue
     private Long id;
+
     private String title;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private Set<Comment> comments = new HashSet<>();
-    public void addComment(Comment comment) {
-        this.getComments().add(comment);
-        comment.setPost(this);
-    }
+    @Lob
+    private String content;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created;
 
     public Long getId() {
         return id;
@@ -34,18 +33,19 @@ public class Post {
         this.title = title;
     }
 
-    public Set<Comment> getComments() {
-        return comments;
+    public String getContent() {
+        return content;
     }
 
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "title='" + title + '\'' +
-                '}';
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

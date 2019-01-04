@@ -8,9 +8,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@Import(FreelifeRegistrar.class)
-//@EnableJpaRepositories(queryLookupStrategy = QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND)
-@EnableAsync
+@EnableJpaRepositories(repositoryImplementationPostfix = "Default")
 public class Application {
 
     public static void main(String[] args) {
