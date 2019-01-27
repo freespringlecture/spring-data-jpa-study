@@ -30,3 +30,9 @@
 - 스토어드 프로시져
 - 트랜잭션
 - Auditing
+
+
+# 강좌 소개
+Application -> 스프링 데이터 JPA (-> JPA -> JDBC) -> Database  
+  
+<img src="img/1-1.png" width="500">
