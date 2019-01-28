@@ -4,7 +4,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static me.freelife.springdatajpautilizestudy.post.CommentSpecs.isBest;
+import static me.freelife.springdatajpautilizestudy.post.CommentSpecs.isGood;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -35,5 +40,14 @@ public class CommentRepositoryTest {
 //            System.out.println(c.getVotes());
             System.out.println(c.getComment());
         });
+    }
+
+    @Test
+    public void specs() {
+//        comments.findAll(CommentSpecs.isBest().or(CommentSpecs.isGood()));
+        // static import를 사용해서 코드를 간결하게 함
+//        comments.findAll(isBest().or(isGood()));
+        //Page로도 받을 수 있음
+        Page<Comment> page = comments.findAll(isBest().or(isGood()), PageRequest.of(0, 10));
     }
 }
