@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-  @Autowired
-  PostRepository posts;
+    @Autowired
+    PostRepository posts;
 
-  @GetMapping("/posts/{id}")
-  public String getPosts(@PathVariable("id") Post post) {
-    return post.getTitle();
-  }
+    @GetMapping("/posts/{id}")
+    public String getPosts(@PathVariable("id") Post post) {
+        return post.getTitle();
+    }
 
 }
