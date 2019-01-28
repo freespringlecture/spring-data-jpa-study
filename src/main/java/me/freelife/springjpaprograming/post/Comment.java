@@ -14,6 +14,12 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
+    private int up;
+
+    private int down;
+
+    private boolean best;
+
     public Long getId() {
         return id;
     }
@@ -36,5 +42,29 @@ public class Comment {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public int getUp() {
+        return up;
+    }
+
+    public void setUp(int up) {
+        this.up = up;
+    }
+
+    public int getDown() {
+        return down;
+    }
+
+    public void setDown(int down) {
+        this.down = down;
+    }
+
+    public boolean isBest() {
+        return best;
+    }
+
+    public void setBest(boolean best) {
+        this.best = best;
     }
 }

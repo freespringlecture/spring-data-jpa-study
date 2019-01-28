@@ -11,14 +11,29 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CommentRepositoryTest {
 
     @Autowired
-    CommentRepository commentRepository;
+    CommentRepository comments;
+
+    @Autowired
+    PostRepository posts;
 
     @Test
     public void getComment() {
-        commentRepository.getById(1l);
+//        comments.findByPost_Id(1l);
+        Post post = new Post();
+        post.setTitle("jpa");
+        Post savedPost = posts.save(post);
 
-        System.out.println("=================================");
+        Comment comment = new Comment();
+        comment.setComment("spring data jpa projection");
+        comment.setPost(savedPost);
+        comment.setUp(10);
+        comment.setDown(1);
+        comments.save(comment);
 
-        commentRepository.findById(1l);
+        comments.findByPost_Id(savedPost.getId(), CommentOnly.class).forEach(c -> {
+            System.out.println("========================");
+//            System.out.println(c.getVotes());
+            System.out.println(c.getComment());
+        });
     }
 }
