@@ -3,7 +3,7 @@ package me.freelife.springjpaprograming.post;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,8 @@ import static me.freelife.springdatajpautilizestudy.post.CommentSpecs.isBest;
 import static me.freelife.springdatajpautilizestudy.post.CommentSpecs.isGood;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+//@DataJpaTest
+@SpringBootTest
 public class CommentRepositoryTest {
 
     @Autowired
