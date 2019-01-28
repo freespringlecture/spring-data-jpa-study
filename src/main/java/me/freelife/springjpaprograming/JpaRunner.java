@@ -22,7 +22,7 @@ public class JpaRunner implements ApplicationRunner {
         account.setUsername("freelife");
         account.setPassword("hibernate");
 
-//        entityManager.persist(account);
+        // entityManager.persist(account);
 
         Session session = entityManager.unwrap(Session.class);
         session.save(account);
