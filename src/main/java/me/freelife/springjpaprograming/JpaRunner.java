@@ -31,8 +31,5 @@ public class JpaRunner implements ApplicationRunner {
         account.addStudy(study);
         entityManager.persist(account);
         entityManager.persist(study);
-
-//        Session session = entityManager.unwrap(Session.class);
-//        session.save(account);
     }
 }
