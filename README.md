@@ -1,127 +1,59 @@
-# 핵심 개념 이해
-본격적인 스프링 데이터 JPA 활용법을 학습하기에 앞서, ORM과 JPA에 대한 이론적인 배경을 학습합니다  
-
-# 1. 관계형 데이터베이스와 자바
-> Persistence(영속성)이란 어떤 정보를 어딘가에 저장하고 애플리케이션을 껐다가 켜도 그 데이터는 유지가 됨  
-## JDBC
-- (관계형) 데이터베이스와 자바의 연결 고리  
+# 2. ORM 개요
+## ORM(Object Relation Mapping)
+> ORM은 애플리케이션의 클래스와 SQL 데이터베이스의 테이블 사이의 ​**맵핑 정보를 기술한 메타데이터**​를 사용하여  
+> 자바 애플리케이션의 객체를 SQL데이터베이스의 테이블에 **자동으로 (또 깨끗하게) 영속화​** 해주는 기술  
+> Hibernate나 JPA 같은 ORM을 사용해서 궁극적으로 코딩을 하려는 방법은 도메인 모델을 사용하는 방식으로 프로그래밍을 하려함  
+> Hibernate가 자동생성하는 SQL뿐만 아니라 임의로 JDBC를 사용하는 Query를 직접 사용할 수도 있음  
   
-<img src="img/1-2.png" width="500">
-  
-### JDBC
-- DataSource / DriverManager
-- Connection
-- PreparedStatement
-
-### SQL
-- DDL
-- DML
-
-### 무엇이 문제인가?
-- SQL을 실행하는 비용이 비싸다.
-- SQL이 데이터베이스 마다 다르다.
-- 스키마를 바꿨더니 코드가 너무 많이 바뀌네...
-- 반복적인 코드가 너무 많아.
-- 당장은필요가없는데언제쓸줄모르니까미리다읽어와야하나...
-  
-## Docker 명령어 설명
-### 옵션
-- -e: 환경변수
-- -d: daemon 명
-- -name: docker 프로세스 명
-- -i: 인터렉티브 모드
-- -t: target 이 되는 container
-- bash: 실행할 명령어
-### 명령어
-- docker ps: docker 프로세스 보기
-- docker ps -a: 동작하지 않는 docker container 까지 보기
-- docker rm: docker 컨테이너 삭제
-- docker stop: docker container stop
-- docker start: docker container start
-
-## Docker PostgreSQL 설치 및 실행
-1. 설치
-```bash
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=1879asdf -e POSTGRES_USER=freelife -e POSTGRES_DB=springboot --name postgres_boot -d postgres
-```
-
-2. 접속
-```bash
-docker exec -i -t postgres_boot bash
-```
-
-3. postgres 유저 전환
-```bash
-su - postgres
-```
-
-4. postgres psql 실행
-> psql에 접속할 데이터베이스 이름  
-```bash
-psql -U freelife springboot
-```
-
-1. 조회
-- 데이터베이스 조회
-```bash
-\list
-```
-#### 테이블 조회
-```bash
-\dt
-```
-#### 쿼리
-```sql
-SELECT * FROM account;
-```
-
-## SQL
-- DDL: 스키마 추가, 수정, 삭제
-- DML: 데이터 추가, 수정, 삭제
-
-## JDBC 드라이버 의존성 추가
-> JDBC는 Java안에 기본으로 포함되어있음 드라이버만 설치하면됨  
-- PostgreSQL 용 드라이버 의존성 추가  
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>RELEASE</version>
-    </dependency>
-</dependencies>
-```
-
-## 문제점
-- 클래스와 맵핑되는 테이블을 생성하는 것이 번거로움
-- 테이블에서 가져온 데이터를 도메인 객체로 맵핑하는 과정도 번거로움
-- connection을 만드는 비용이 비싸다 또한 마음대로 만들 수 없다
-  - DBCP라고 부르는 Connection Pool 오픈소스를 사용해 POOL로 관리를 한다
-  - Spring Boot는 Hikari라는 툴을 사용
-  - 빈이 connection 객체를 미리 만들어 놓고 POOL에서 필요할 때 마다 하나씩 받아서 씀
-- SQL이 표준이 있지만 DB마다 다름 DB를 교체하면 SQL을 다시 작성해야됨
-- 반복적인 코드가 많음
-- 언젠가 쓸지몰라서 미리 다 읽어오는 경우가 있음
-
-## 테스트 로직 구현
-> 접근할때는 try with resource 라는 Java8부터 도입된 문법을 사용  
-> DDL로 테이블 생성후, DML로 데이터를 Insert  
+#### JDBC를 직접 사용하는 방식  
 ```java
-public class Application {
-
-    public static void main(String[] args) throws SQLException {
-        String url = "jdbc:postgresql://localhost:5432/springboot";
-        String username = "freelife";
-        String password = "1879asdf";
-
-        try(Connection connection = DriverManager.getConnection(url, username, password)){
-            System.out.println("Connection created: "+ connection);
-            String sql = "CREATE TABLE ACCOUNT (id int, username varchar(255), password varchar(255));";
-            sql = "INSERT INTO ACCOUNT VALUES(1, 'freelife', '1879asdf');";
-            try(PreparedStatement statement = connection.prepareStatement(sql)){
-                statement.execute();
-            }
-        }
+try(Connection connection = DriverManager.getConnection(url, username, password)){
+    System.out.println("Connection created: "+ connection);
+    String sql = "CREATE TABLE ACCOUNT (id int, username varchar(255), password varchar(255));";
+    sql = "INSERT INTO ACCOUNT VALUES(1, 'freelife', '1879asdf');";
+    try(PreparedStatement statement = connection.prepareStatement(sql)){
+        statement.execute();
     }
 }
 ```
+
+#### 도메인 모델을 사용하는 코드를 Object 라고 함
+```java
+Account account = new Account(“freelife”, “pass”);
+accountRepository.save(account);
+```
+
+## JDBC 대신 도메인 모델 사용하려는 이유?
+- 객체 지향 프로그래밍의 장점을 활용하기 좋다
+- 각종 디자인 패턴
+- 코드 재사용
+- 비즈니스 로직 구현 및 테스트 편함
+  
+## 장단점
+| 장점                                              | 단점     |
+| ------------------------------------------------- | -------- |
+| 생산성<br />유지보수성<br />성능<br />밴더 독립성 | 학습비용 |
+  
+### 장점
+- 생산성: 맵핑만 하면 데이터 입 출력이 정말 쉬워짐
+- 유지보수성: 코드가 굉장히 간결해지고 코드양이 줄어 유지보수성이 높아짐
+- 성능
+  - 논쟁의 여지가 있음 SQL단건만 보면 ORM이 더 느릴수있음 
+  - Hibernate는 객체와 테이블에 데이터 사이에 캐시가 존재하므로 불필요한 쿼리를 사용하지 않음
+  - 하나의 트랜잭션 내에서 여러 요청이 일어나도 정말로 데이터베이스에 반영해야되는 시점에만 반영을함
+  - 데이터가 같거나 반영할 필요가 없다면 반영하지 않아서 성능에 장점이 있음
+  - 성능 최적화를 위한 여러가지 기능들을 제공함
+- 벤더 독립성: Hibernate가 어떠한 데이터베이스에 맞게 SQL을 생성해야 되는지만 알려주면 됨
+  - 데이터베이스가 바뀌어도 코드가 변경되지 않음
+  - Hibernate가 데이터베이스 sync를 할때 객체를 영속화 할때 발생하는 SQL만 자동으로 바뀜
+
+### 단점
+> 학습비용: SQL과 데이터베이스도 잘 알아야하고 Hibernate와 JPA도 아주 잘 알아야 됨  
+  
+- Hibernate가 어떠한 SQL을 발생시킬지 알아야한다
+- 학습하는데 시간이 많이 들고 어려운 프레임워크 중 하나
+
+## 비침투성 논란의 여지 
+- 비침투성(transparent): 자기 자신의 코드를 숨기려고 함
+- SpringFrameWork, Hibernate, ORM도 비침투적인 철학을 가지고 있다고 짐작함
+- 스프링 부트에서 제공하는 EntityManager을 사용해야 하므로 아주 비 침투적이진 않음
