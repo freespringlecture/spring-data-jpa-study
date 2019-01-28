@@ -1,4 +1,4 @@
-package me.freelife.springjpaprograming;
+package me.freelife.springjpaprograming.post;
 
 import me.freelife.springjpaprograming.post.PostListener;
 import me.freelife.springjpaprograming.post.PostPublishedEvent;
