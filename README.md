@@ -1,125 +1,103 @@
-# 스프링 데이터 Common: QueryDSL
-> 메서드 이름을 분석해서 스프링 데이터 JPA(Common)가 자동으로 쿼리를 만드는 방법은  
-> 조건이 추가될 수록 너무 알아보기 힘든 단점이 있음  
+# 스프링 데이터 Common: Web 1부: 웹 지원 기능 소개
+> 스프링 데이터를 웹과 같이 사용한다면 추가적인 기능들을 더 제공함  
+
+## 스프링 데이터 웹 지원 기능 설정
+- 스프링 부트를 사용하는 경우에.. 설정할 것이 없음 (자동 설정)
+- 스프링 부트 사용하지 않는 경우?
 ```java
-findByFirstNameIngoreCaseAndLastNameStartsWithIgnoreCase(String firstName, String lastName) 
+@Configuration
+@EnableWebMvc
+@EnableSpringDataWebSupport
+class WebConfiguration {}
 ```
-## 여러 쿼리 메소드는 대부분 두 가지 중 하나.
-- Optional<T> findOne(Predicate): 이런 저런 조건으로 무언가 하나를 찾는다.
-- List<T>|Page<T>|.. findAll(Predicate): 이런 저런 조건으로 무언가 여러개를 찾는다
-- QuerydslPredicateExecutor 인터페이스
- 
-## QueryDSL(Domain Specific Language)
-- http://www.querydsl.com/
-- 타입 세이프한 쿼리 만들 수 있게 도와주는 라이브러리
-- JPA, SQL, MongoDB, JDO, Lucene, Collection 지원
-- QueryDSL JPA 연동 가이드
- 
-## 스프링 데이터 JPA + QueryDSL
-- 인터페이스: QuerydslPredicateExecutor<T>
-- 구현체: QuerydslPredicateExecutor<T>
- 
-## 연동 방법
-- 기본 리포지토리 커스터마이징 안 했을 때. (쉬움)
-- 기본 리포지토리 커스타마이징 했을 때. (해맬 수 있으나... 제가 있잖습니까)
- 
-## 의존성 추가
-http://www.querydsl.com/static/querydsl/4.0.1/reference/ko-KR/html_single/
+
+## 제공하는 기능
+> 주로 도메인 클래스 컨버터, Pageable과 Sort 매개변수 사용을 주로 사용할 것 같고  
+> REST API를 정말 잘만들고 싶다면 HATEOS 까지 적용을 해야하는데 그런경우에는 Page 관련 HATEOS 기능까지 적용할 수 있을 것 같음  
+
+- 도메인 클래스 컨버터  
+  > @PathVariable 혹은 RequestParameter로 들어오는 id 값을 도메인으로 변환을 받아서 파라메터로 받을 수 있음  
+- @RequestHandler 메소드에서 Pageable과 Sort 매개변수 사용  
+  > 요청이 들어온 특정 파라메터들을 Pageable 또는 Sort로 맵핑해서 바인딩을 해줌  
+- Page 관련 HATEOAS 기능 제공
+  - PagedResourcesAssembler
+  - PagedResoure
   
-> 아래와 같이 의존성을 다 추가한 다음 Maven - Lifecycle - compile 클릭해서 빌드  
-> 빌드하면 target/generated-sources/java에 클래스가 생성됨  
+- Payload 프로젝션
+  - 요청으로 들어오는 데이터 중 일부만 바인딩 받아오기
+  - @ProjectedPayload, @XBRead, @JsonPath
+- 요청 쿼리 매개변수를 QueryDSLdml Predicate로 받아오기
+  - ?firstname=Mr&lastname=White => Predicate
+
+
+## HATEOAS 란?
+> 리소스에 대한 HyperMedia를 리소스 정보와 같이 사용하라는 논문의 이야기이며  
+> 그 구현체가 Spring HATEOAS  
+> 어떠한 리소스를 요청했을 때 리소스와 관련이 있는 링크정보들을 같이 보내는 것을 HATEOAS 라고 할 수 있음  
+> 링크 정보는 이름이 있고 URL이 있음  
+
+### Spring HATEOAS 
+> Pageable을 파라메터로 받아서 사용하면 Page 타입을 받아서 PagedResources로 변환을 해주는   
+> `PagedResourcesAssembler`를 사용할 수 있음  
+> `PagedResourcesAssembler`를 사용해서 PagedResources로 변환을 하면  
+> Page 정보 뿐만 아니라 HETOAS 라고 불릴만한 Link 정보도 같이 응답으로 만들어 쉽게 보낼 수 있음  
+
+```java
+@GetMapping("/posts")
+public PagedResources<Post> getPosts(Pageable pageable, PagedResourcesAssembler assembler) {
+  Page<Post> all = postRepository.findAll(pageable);
+  return assembler.toResoure(all)
+}
+```
+
+## @ProjectedPayload
+https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#core.web.basic 
+- HTTP payload binding using JSONPath or XPath expressions  
+- 요청으로 들어오는 JSON 또는 XML 데이터의 일부만 캡쳐를 해서 바인딩 받을 수 있는 기능  
+- JSON에 여러가지 정보들이 들어오는데 그중에서 원하는 것만 받고 싶다면  
+- @ProjectedPayload 애노테이션을 붙이고 @JsonPath, @XBRead를 사용해서 요청안에 들어있는 데이터 일부를 바인딩 받아 올 수 있음  
+- 데이터를 보내고 UserPayload 인터페이스 타입으로 바인딩을 받으면 정의한 원하는 데이터를 받아올 수 있음  
+- 바인딩을 일부만 받는 경우가 흔치 않고 ModelAttribute를 사용하거나 RequestBody만 사용해도 받을 수 있음
+```java
+@ProjectedPayload
+public interface UserPayload {
+
+  @XBRead("//firstname")
+  @JsonPath("$..firstname")
+  String getFirstname();
+
+  @XBRead("/lastname")
+  @JsonPath({ "$.lastname", "$.user.lastname" })
+  String getLastname();
+}
+```
+
+## QueryDSL Web Support
+> 웹에 QueryString이 들어오면 Handler의 매개변수로 QueryString을 QueryDSL이 제공하는 Predicate 타입으로 받아줌  
+> 사용하기에 위험해 보여서 권장하지는 않음 뭐가 들어올지도 모르는데 무작정 받아서 Query 하는 것은 너무 위험해 보임  
+```java
+?firstname=Dave&lastname=Matthews
+```
+
+```java
+QUser.user.firstname.eq("Dave").and(QUser.user.lastname.eq("Matthews"))
+```
   
-#### QueryDSL 의존성 추가
-> QueryDSL은 스프링 부트가 의존성을 관리해주므로 버전을 명시하지 않아도 됨  
-> `apt`모듈은 QueryDSL이 Entity모델을 보고 Query용 Specific Language(특정 언어)를 만들어 주는 모듈  
-```xml
-<dependency>
-  <groupId>com.querydsl</groupId>
-  <artifactId>querydsl-apt</artifactId>
-</dependency>
-<dependency>
-  <groupId>com.querydsl</groupId>
-  <artifactId>querydsl-jpa</artifactId>
-</dependency>
-```
-
-#### QueryDSL용 빌드 설정
-```xml
-<plugin>
-  <groupId>com.mysema.maven</groupId>
-  <artifactId>apt-maven-plugin</artifactId>
-  <version>1.1.3</version>
-  <executions>
-    <execution>
-      <goals>
-        <goal>process</goal>
-      </goals>
-      <configuration>
-        <outputDirectory>target/generated-sources/java</outputDirectory>
-        <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-      </configuration>
-    </execution>
-  </executions>
-</plugin>
-```
-
-## 실습
-#### AccountRepository에 QuerydslPredicateExecutor를 추가 <T>타입에는 도메인
+> Pageable 도 받을 수 있고 Predicate 도 받을 수 있으므로 바로 QueryDSL을 지원하는 Repository를 사용해서  
+> 바로 Predicate 와 Pageable 를 전달 받아서 users 를 조회해서 바로 리턴하는 것이 가능  
 ```java
-public interface AccountRepository extends JpaRepository<Account, Long>, QuerydslPredicateExecutor<Account> {
-}
-```
+@Controller
+class UserController {
 
-#### 테스트 코드 구현
-```java
-@RunWith(SpringRunner.class)
-@DataJpaTest
-public class AccountRepositoryTest {
+  @Autowired UserRepository repository;
 
-    @Autowired
-    AccountRepository accountRepository;
+  @RequestMapping(value = "/", method = RequestMethod.GET)
+  String index(Model model, @QuerydslPredicate(root = User.class) Predicate predicate,    
+          Pageable pageable, @RequestParam MultiValueMap<String, String> parameters) {
 
-    @Test
-    public void crud(){
-        QAccount account = QAccount.account;
-        Predicate predicate = account
-                .firstName.containsIgnoreCase("freelife")
-                .and(account.lastName.startsWith("super"));
+    model.addAttribute("users", repository.findAll(predicate, pageable));
 
-        Optional<Account> one = accountRepository.findOne(predicate);
-        assertThat(one).isEmpty();
-    }
-}
-```
-
-## 2-9 도메인 이벤트 프로젝트 QueryDSL로 커스터마이징
-> Maven 의존성 추가후 clean - compile  
-
-#### PostRepository에 QuerydslPredicateExecutor 추가
-```java
-public interface PostRepository extends MyRepository<Post, Long>, QuerydslPredicateExecutor<Post> {
-}
-```
-
-#### 테스트 코드 구현
-```java
-@RunWith(SpringRunner.class)
-@DataJpaTest
-@Import(PostRepositoryTestConfig.class)
-public class PostRepositoryTest {
-
-    @Autowired
-    PostRepository postRepository;
-
-    @Test
-    public void crud() {
-        Post post = new Post();
-        post.setTitle("hibernate");
-        postRepository.save(post.publish());
-
-        Predicate predicate = QPost.post.title.containsIgnoreCase("hi");
-        Optional<Post> one = postRepository.findOne(predicate);
-        assertThat(one).isNotEmpty();
-    }
+    return "index";
+  }
 }
 ```
