@@ -20,14 +20,6 @@ public class CommentRepositoryTest {
 
     @Test
     public void crud() {
-        Optional<Comment> byId = commentRepository.findById(100l);
-        assertThat(byId).isEmpty();
-        //Comment comment = byId.orElse(new Comment()); // Optional 객체가 비어있으면 Comment 만들어서 리턴
-        Comment comment = byId.orElseThrow(() -> new IllegalArgumentException());
-
-        List<Comment> comments = commentRepository.findAll();
-        assertThat(comments).isEmpty();
-
-        commentRepository.save(null);
+        // commentRepository.save(null);
     }
 }
