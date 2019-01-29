@@ -113,7 +113,7 @@ public class JpaRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Account account = new Account();
         account.setUsername("freelife");
-        account.setPassword("1879asdf");
+        account.setPassword("pass");
 
         entityManager.persist(account);
     }
