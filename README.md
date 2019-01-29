@@ -42,7 +42,7 @@
 ## Docker PostgreSQL 설치 및 실행
 1. 설치
 ```bash
-docker run -p 5432:5432 -e POSTGRES_PASSWORD=1879asdf -e POSTGRES_USER=freelife -e POSTGRES_DB=springboot --name postgres_boot -d postgres
+docker run -p 5432:5432 -e POSTGRES_PASSWORD=pass -e POSTGRES_USER=freelife -e POSTGRES_DB=springboot --name postgres_boot -d postgres
 ```
 
 2. 접속
@@ -97,7 +97,7 @@ SELECT * FROM account;
 - 테이블에서 가져온 데이터를 도메인 객체로 맵핑하는 과정도 번거로움
 - connection을 만드는 비용이 비싸다 또한 마음대로 만들 수 없다
   - DBCP라고 부르는 Connection Pool 오픈소스를 사용해 POOL로 관리를 한다
-  - Spring Boot는 Hikari라는 툴을 사용
+  - Spring Boot는 Hikari라는 툴을 사용9
   - 빈이 connection 객체를 미리 만들어 놓고 POOL에서 필요할 때 마다 하나씩 받아서 씀
 - SQL이 표준이 있지만 DB마다 다름 DB를 교체하면 SQL을 다시 작성해야됨
 - 반복적인 코드가 많음
@@ -112,12 +112,12 @@ public class Application {
     public static void main(String[] args) throws SQLException {
         String url = "jdbc:postgresql://localhost:5432/springboot";
         String username = "freelife";
-        String password = "1879asdf";
+        String password = "pass";
 
         try(Connection connection = DriverManager.getConnection(url, username, password)){
             System.out.println("Connection created: "+ connection);
             String sql = "CREATE TABLE ACCOUNT (id int, username varchar(255), password varchar(255));";
-            sql = "INSERT INTO ACCOUNT VALUES(1, 'freelife', '1879asdf');";
+            sql = "INSERT INTO ACCOUNT VALUES(1, 'freelife', 'pass');";
             try(PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.execute();
             }
